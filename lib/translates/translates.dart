@@ -14,4 +14,8 @@ abstract class Translates {
   String get welcome;
 
   String get weCouldNotConnectToTheServer;
+
+  String get errorSomethingWrong;
+
+  String get tryAgain;
 }

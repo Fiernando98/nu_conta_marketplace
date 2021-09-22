@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:nu_conta_marketplace/main.dart';
+import 'package:nu_conta_marketplace/pages/something_wrong_page.dart';
 import 'package:nu_conta_marketplace/translates/translates.dart';
 import 'package:nu_conta_marketplace/utilities/api_uris.dart';
 import 'package:nu_conta_marketplace/utilities/methods/public.dart';
@@ -29,13 +30,7 @@ class _VisualizeDataPageState extends State<VisualizeDataPage> {
 
   Widget _bodyPage() {
     if (_someError) {
-      return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(Icons.error, color: Colors.red[900]),
-          const SizedBox(height: 10),
-          Text("Errorrrrrrr")
-        ])
-      ]);
+      return SomethingWrongPage(onTapRetry: _loadData);
     }
     return const Center(child: CircularProgressIndicator());
   }
@@ -47,6 +42,7 @@ class _VisualizeDataPageState extends State<VisualizeDataPage> {
 
   Future<void> _loadData() async {
     await Future.delayed(Duration.zero);
+    setState(() => _someError = false);
     try {
       http.Response _response = await http
           .get(Uri.parse(ApiUris.query), headers: {

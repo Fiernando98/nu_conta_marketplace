@@ -14,4 +14,10 @@ class LanguageEs extends Translates {
   @override
   String get weCouldNotConnectToTheServer =>
       "No pudimos conectarnos con el servidor";
+
+  @override
+  String get errorSomethingWrong => "Ups! Algo salió mal";
+
+  @override
+  String get tryAgain => "Intentar otra vez";
 }
