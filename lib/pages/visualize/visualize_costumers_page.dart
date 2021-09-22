@@ -16,7 +16,7 @@ class VisualizeCostumersPage extends StatefulWidget {
 }
 
 class _VisualizeCostumersPageState extends State<VisualizeCostumersPage> {
-  List<dynamic>? _itemsList;
+  Map<String, dynamic>? _jsonRequest;
   bool _someError = false;
 
   @override
@@ -26,7 +26,9 @@ class _VisualizeCostumersPageState extends State<VisualizeCostumersPage> {
   }
 
   AppBar _appBar() {
-    return AppBar(title: Text(Translates.of(context)!.welcome));
+    return AppBar(title: Text(Translates.of(context)!.welcome), actions: [
+      IconButton(onPressed: _selectOrder, icon: Icon(Icons.filter_list_alt))
+    ]);
   }
 
   Widget _bodyPage() {
@@ -36,7 +38,21 @@ class _VisualizeCostumersPageState extends State<VisualizeCostumersPage> {
           tryAgainText: Translates.of(context)!.tryAgain,
           onTapRetry: _loadData);
     }
-    return const Center(child: CircularProgressIndicator());
+
+    if (_jsonRequest == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return ListView.separated(
+        itemBuilder: (_, index) {
+          return ListTile(
+              title: Text(_jsonRequest!["data"]!["viewer"]!["offers"]![index]
+                  ["product"]["name"]));
+        },
+        separatorBuilder: (_, index) => const Divider(height: 0, thickness: 1),
+        itemCount:
+            (_jsonRequest!["data"]!["viewer"]!["offers"] as List<dynamic>)
+                .length);
   }
 
   @override
@@ -57,24 +73,28 @@ class _VisualizeCostumersPageState extends State<VisualizeCostumersPage> {
           headers: {
             "Content-Type": "application/json",
             "Accept-Language": Translates.of(context)!.codeLanguage,
-            'Authorization': 'bearer $token'
+            'Authorization': 'Bearer $token'
           }).timeout(const Duration(seconds: 30),
           onTimeout: () =>
               throw Translates.of(context)!.weCouldNotConnectToTheServer);
 
       if (_response.statusCode == 200) {
-        PublicMethods.snackMessage(
-            message: await json.decode(utf8.decode(_response.bodyBytes)),
-            context: context);
+        _jsonRequest = await json.decode(utf8.decode(_response.bodyBytes));
+        setState(() {});
       } else {
         throw await json.decode(utf8.decode(_response.bodyBytes));
       }
-      PublicMethods.snackMessage(
-          message: "${_response.statusCode}", context: context);
     } catch (error) {
       PublicMethods.snackMessage(
           message: error.toString(), context: context, isError: true);
       setState(() => _someError = true);
+    }
+  }
+
+  Future<void> _selectOrder() async {
+    try {} catch (error) {
+      PublicMethods.snackMessage(
+          message: error.toString(), context: context, isError: true);
     }
   }
 }

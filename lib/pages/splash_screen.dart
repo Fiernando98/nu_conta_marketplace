@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nu_conta_marketplace/pages/visualize/visualize_data_page.dart';
+import 'package:nu_conta_marketplace/pages/visualize/visualize_costumers_page.dart';
 import 'package:nu_conta_marketplace/translates/translates.dart';
 import 'package:nu_conta_marketplace/utilities/methods/public.dart';
 
@@ -37,7 +37,8 @@ class _SplashScreenState extends State<SplashScreen> {
     try {
       ///Do something
       Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const VisualizeDataPage()),
+          MaterialPageRoute(
+              builder: (context) => const VisualizeCostumersPage()),
           (Route<dynamic> route) => false);
     } catch (error) {
       ///Show some error
