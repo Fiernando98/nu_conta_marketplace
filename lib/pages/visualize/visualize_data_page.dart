@@ -30,7 +30,10 @@ class _VisualizeDataPageState extends State<VisualizeDataPage> {
 
   Widget _bodyPage() {
     if (_someError) {
-      return SomethingWrongPage(onTapRetry: _loadData);
+      return SomethingWrongPage(
+          errorText: Translates.of(context)!.errorSomethingWrong,
+          tryAgainText: Translates.of(context)!.tryAgain,
+          onTapRetry: _loadData);
     }
     return const Center(child: CircularProgressIndicator());
   }

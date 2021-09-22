@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:nu_conta_marketplace/translates/translates.dart';
 
 class SomethingWrongPage extends StatelessWidget {
-  final String? errorText;
+  final String errorText;
+  final String tryAgainText;
   final VoidCallback onTapRetry;
 
-  const SomethingWrongPage({Key? key, this.errorText, required this.onTapRetry})
+  const SomethingWrongPage(
+      {Key? key,
+      required this.errorText,
+      required this.tryAgainText,
+      required this.onTapRetry})
       : super(key: key);
 
   @override
@@ -14,12 +18,11 @@ class SomethingWrongPage extends StatelessWidget {
       Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Icon(Icons.error, color: Colors.red[900], size: 40),
         const SizedBox(height: 5),
-        Text(errorText ?? Translates.of(context)!.errorSomethingWrong),
+        Text(errorText),
         ElevatedButton(
             onPressed: onTapRetry,
             child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [Text(Translates.of(context)!.tryAgain)]))
+                mainAxisSize: MainAxisSize.min, children: [Text(tryAgainText)]))
       ])
     ]);
   }
