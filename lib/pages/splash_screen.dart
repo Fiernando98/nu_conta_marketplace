@@ -40,6 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
           MaterialPageRoute(builder: (context) => const VisualizeDataPage()),
           (Route<dynamic> route) => false);
     } catch (error) {
+      ///Show some error
       PublicMethods.snackMessage(
           message: error.toString(), context: context, isError: true);
     }

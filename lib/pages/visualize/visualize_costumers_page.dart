@@ -8,14 +8,15 @@ import 'package:nu_conta_marketplace/translates/translates.dart';
 import 'package:nu_conta_marketplace/utilities/api_uris.dart';
 import 'package:nu_conta_marketplace/utilities/methods/public.dart';
 
-class VisualizeDataPage extends StatefulWidget {
-  const VisualizeDataPage({Key? key}) : super(key: key);
+class VisualizeCostumersPage extends StatefulWidget {
+  const VisualizeCostumersPage({Key? key}) : super(key: key);
 
   @override
-  _VisualizeDataPageState createState() => _VisualizeDataPageState();
+  _VisualizeCostumersPageState createState() => _VisualizeCostumersPageState();
 }
 
-class _VisualizeDataPageState extends State<VisualizeDataPage> {
+class _VisualizeCostumersPageState extends State<VisualizeCostumersPage> {
+  List<dynamic>? _itemsList;
   bool _someError = false;
 
   @override
@@ -47,17 +48,24 @@ class _VisualizeDataPageState extends State<VisualizeDataPage> {
     await Future.delayed(Duration.zero);
     setState(() => _someError = false);
     try {
-      http.Response _response = await http
-          .get(Uri.parse(ApiUris.query), headers: {
-        "Content-Type": "application/json",
-        "Accept-Language": Translates.of(context)!.codeLanguage,
-        'Authorization': 'bearer $token'
-      }).timeout(const Duration(seconds: 30),
-              onTimeout: () =>
-                  throw Translates.of(context)!.weCouldNotConnectToTheServer);
+      final Map<String, dynamic> _itemJSON = {
+        "query":
+            " { viewer { id name balance offers { id price product { id name description image } } } }"
+      };
+      http.Response _response = await http.post(Uri.parse(ApiUris.query),
+          body: json.encode(_itemJSON),
+          headers: {
+            "Content-Type": "application/json",
+            "Accept-Language": Translates.of(context)!.codeLanguage,
+            'Authorization': 'bearer $token'
+          }).timeout(const Duration(seconds: 30),
+          onTimeout: () =>
+              throw Translates.of(context)!.weCouldNotConnectToTheServer);
 
       if (_response.statusCode == 200) {
-        PublicMethods.snackMessage(message: ":D", context: context);
+        PublicMethods.snackMessage(
+            message: await json.decode(utf8.decode(_response.bodyBytes)),
+            context: context);
       } else {
         throw await json.decode(utf8.decode(_response.bodyBytes));
       }
