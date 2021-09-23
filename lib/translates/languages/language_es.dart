@@ -20,4 +20,13 @@ class LanguageEs extends Translates {
 
   @override
   String get tryAgain => "Intentar otra vez";
+
+  @override
+  String get search => "Buscar";
+
+  @override
+  String get offers => "Ofertas";
+
+  @override
+  String get noOffersAvailable => "No hay ofertas disponibles";
 }

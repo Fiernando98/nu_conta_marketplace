@@ -18,4 +18,10 @@ abstract class Translates {
   String get errorSomethingWrong;
 
   String get tryAgain;
+
+  String get search;
+
+  String get offers;
+
+  String get noOffersAvailable;
 }

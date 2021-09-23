@@ -20,4 +20,13 @@ class LanguageEn extends Translates {
 
   @override
   String get tryAgain => "Try again";
+
+  @override
+  String get search => "Search";
+
+  @override
+  String get offers => "Offers";
+
+  @override
+  String get noOffersAvailable => "No offers available";
 }

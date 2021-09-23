@@ -7,17 +7,19 @@ import 'package:nu_conta_marketplace/pages/something_wrong_page.dart';
 import 'package:nu_conta_marketplace/translates/translates.dart';
 import 'package:nu_conta_marketplace/utilities/api_uris.dart';
 import 'package:nu_conta_marketplace/utilities/methods/public.dart';
+import 'package:nu_conta_marketplace/utilities/special_widgets/search_appbar.dart';
 
-class VisualizeCostumersPage extends StatefulWidget {
-  const VisualizeCostumersPage({Key? key}) : super(key: key);
+class VisualizeOffersPage extends StatefulWidget {
+  const VisualizeOffersPage({Key? key}) : super(key: key);
 
   @override
-  _VisualizeCostumersPageState createState() => _VisualizeCostumersPageState();
+  _VisualizeOffersPageState createState() => _VisualizeOffersPageState();
 }
 
-class _VisualizeCostumersPageState extends State<VisualizeCostumersPage> {
+class _VisualizeOffersPageState extends State<VisualizeOffersPage> {
   Map<String, dynamic>? _jsonRequest;
   bool _someError = false;
+  String _searchQuery = "";
 
   @override
   void initState() {
@@ -26,9 +28,12 @@ class _VisualizeCostumersPageState extends State<VisualizeCostumersPage> {
   }
 
   AppBar _appBar() {
-    return AppBar(title: Text(Translates.of(context)!.welcome), actions: [
-      IconButton(onPressed: _selectOrder, icon: Icon(Icons.filter_list_alt))
-    ]);
+    return SearchAppBar(
+        title: Text(Translates.of(context)!.offers),
+        searchText: Translates.of(context)!.search,
+        onTextChange: (newText) {
+          setState(() => _searchQuery = newText);
+        });
   }
 
   Widget _bodyPage() {
@@ -43,16 +48,23 @@ class _VisualizeCostumersPageState extends State<VisualizeCostumersPage> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    List<dynamic> _listFilter =
+        (_jsonRequest!["data"]!["viewer"]!["offers"]! as List<dynamic>)
+            .toList();
+
+    if (_searchQuery.isEmpty) {
+      return Center(child: Text(Translates.of(context)!.noOffersAvailable));
+    }
+
+    _listFilter.removeWhere((final dynamic item) => ![
+          item["product"]["name"].toString().toLowerCase()
+        ].any((element) => element.contains(_searchQuery.toLowerCase())));
+
     return ListView.separated(
-        itemBuilder: (_, index) {
-          return ListTile(
-              title: Text(_jsonRequest!["data"]!["viewer"]!["offers"]![index]
-                  ["product"]["name"]));
-        },
+        itemBuilder: (_, index) =>
+            ListTile(title: Text(_listFilter[index]["product"]["name"])),
         separatorBuilder: (_, index) => const Divider(height: 0, thickness: 1),
-        itemCount:
-            (_jsonRequest!["data"]!["viewer"]!["offers"] as List<dynamic>)
-                .length);
+        itemCount: _listFilter.length);
   }
 
   @override
@@ -88,13 +100,6 @@ class _VisualizeCostumersPageState extends State<VisualizeCostumersPage> {
       PublicMethods.snackMessage(
           message: error.toString(), context: context, isError: true);
       setState(() => _someError = true);
-    }
-  }
-
-  Future<void> _selectOrder() async {
-    try {} catch (error) {
-      PublicMethods.snackMessage(
-          message: error.toString(), context: context, isError: true);
     }
   }
 }
