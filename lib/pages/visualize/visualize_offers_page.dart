@@ -69,12 +69,9 @@ class _VisualizeOffersPageState extends State<VisualizeOffersPage> {
             title: _listFilter[index]["product"]["name"],
             price: double.parse("${_listFilter[index]["price"]}"),
             imagePath: _listFilter[index]["product"]["image"],
-            onTap: () => Navigator.of(context)
-                .push(MaterialPageRoute(
-                    builder: (_) =>
-                        VisualizeOfferPage(offer: _listFilter[index])))
-                .whenComplete(_loadData)),
-        separatorBuilder: (_, index) => const Divider(height: 0, thickness: 1),
+            onTap: () async => _showOffer(_listFilter[index])),
+        separatorBuilder: (_, index) =>
+            const Divider(height: 0, thickness: 1, indent: 100),
         itemCount: _listFilter.length);
   }
 
@@ -84,11 +81,15 @@ class _VisualizeOffersPageState extends State<VisualizeOffersPage> {
           elevation: 10,
           margin: const EdgeInsets.all(0),
           child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 5),
+              padding: const EdgeInsets.all(5),
               child: Row(children: [
                 Expanded(
-                    child: Text("${_jsonRequest!["data"]!["viewer"]!["name"]}",
-                        style: const TextStyle(fontWeight: FontWeight.bold))),
+                    child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Text(
+                            "${_jsonRequest!["data"]!["viewer"]!["name"]}",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)))),
                 Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
@@ -96,7 +97,10 @@ class _VisualizeOffersPageState extends State<VisualizeOffersPage> {
                         borderRadius: BorderRadius.circular(10)),
                     child: Text(
                         "\$${_jsonRequest!["data"]!["viewer"]!["balance"]}",
-                        style: const TextStyle(color: Colors.white)))
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.white)))
               ])));
     }
   }
@@ -139,6 +143,25 @@ class _VisualizeOffersPageState extends State<VisualizeOffersPage> {
       _jsonRequest = null;
       _someError = true;
       setState(() {});
+    }
+  }
+
+  Future<void> _showOffer(final Map<String, dynamic> offer) async {
+    try {
+      final double? newBalance = await Navigator.of(context).push(
+          MaterialPageRoute(
+              builder: (_) => VisualizeOfferPage(
+                  offer: offer,
+                  currentBalance: double.parse(
+                      "${_jsonRequest!["data"]!["viewer"]!["balance"]}"))));
+
+      if (newBalance != null) {
+        setState(
+            () => _jsonRequest!["data"]!["viewer"]!["balance"] = newBalance);
+      }
+    } catch (error) {
+      PublicMethods.snackMessage(
+          message: error.toString(), context: context, isError: true);
     }
   }
 }

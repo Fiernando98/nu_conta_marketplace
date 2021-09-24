@@ -32,4 +32,8 @@ abstract class Translates {
   String get buy;
 
   String get makingPurchase;
+
+  String get insufficientBalance;
+
+  String get successfulPurchase;
 }

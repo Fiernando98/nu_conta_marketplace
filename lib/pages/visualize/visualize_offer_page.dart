@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:nu_conta_marketplace/dialogs/dialog_loading_data.dart';
 import 'package:nu_conta_marketplace/main.dart';
+import 'package:nu_conta_marketplace/pages/visualize/visualize_single_image_page.dart';
 import 'package:nu_conta_marketplace/translates/translates.dart';
 import 'package:nu_conta_marketplace/utilities/api_uris.dart';
 import 'package:nu_conta_marketplace/utilities/methods/public.dart';
@@ -11,8 +12,11 @@ import 'package:nu_conta_marketplace/utilities/special_widgets/image_load_networ
 
 class VisualizeOfferPage extends StatefulWidget {
   final Map<String, dynamic> offer;
+  final double currentBalance;
 
-  const VisualizeOfferPage({Key? key, required this.offer}) : super(key: key);
+  const VisualizeOfferPage(
+      {Key? key, required this.offer, required this.currentBalance})
+      : super(key: key);
 
   @override
   _VisualizeOfferPageState createState() => _VisualizeOfferPageState();
@@ -24,7 +28,7 @@ class _VisualizeOfferPageState extends State<VisualizeOfferPage> {
   }
 
   Widget _bodyPage() {
-    return ListView(children: [
+    return ListView(padding: const EdgeInsets.only(bottom: 70), children: [
       Padding(
           padding: const EdgeInsets.all(10),
           child: Text(widget.offer["product"]["name"],
@@ -32,12 +36,24 @@ class _VisualizeOfferPageState extends State<VisualizeOfferPage> {
                   const TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
       AspectRatio(
           aspectRatio: 4 / 3,
-          child: ImageLoadNetwork(imagePath: widget.offer["product"]["image"])),
+          child: InkWell(
+              onTap: (widget.offer["product"]["image"] != null)
+                  ? () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => VisualizeSingleImagePage(
+                          imagePath: widget.offer["product"]["image"])))
+                  : null,
+              child: ImageLoadNetwork(
+                  imagePath: widget.offer["product"]["image"]))),
       Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.only(left: 10, top: 10, right: 10),
           child: Text(
               "${Translates.of(context)!.price}: \$${widget.offer["price"]}",
-              style: const TextStyle(fontSize: 18)))
+              style: const TextStyle(fontSize: 18))),
+      Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text(widget.offer["product"]?["description"],
+              textAlign: TextAlign.justify,
+              style: const TextStyle(fontSize: 13)))
     ]);
   }
 
@@ -56,6 +72,9 @@ class _VisualizeOfferPageState extends State<VisualizeOfferPage> {
 
   Future<void> _buyItem() async {
     try {
+      if (widget.currentBalance < double.parse("${widget.offer["price"]}")) {
+        throw Translates.of(context)!.insufficientBalance;
+      }
       await showDialog(
           context: context,
           barrierDismissible: false,
@@ -65,8 +84,21 @@ class _VisualizeOfferPageState extends State<VisualizeOfferPage> {
               functionSync: () async {
                 try {
                   final Map<String, dynamic> _itemJSON = {
-                    "query":
-                        " { viewer { id name balance offers { id price product { id name description image } } } }"
+                    "query": """
+                        mutation PurchaseMutationRoot(\$purchaseOfferId: ID!) {
+                         purchase(offerId: \$purchaseOfferId) {
+                          success,
+                          errorMessage,
+                          customer {
+                           balance
+                          }
+                         }
+                        }
+                        """,
+                    "variables": """ {
+                     "purchaseOfferId": "${widget.offer["id"]}"
+                    }
+                    """
                   };
                   http.Response _response = await http.post(
                       Uri.parse(ApiUris.query),
@@ -80,7 +112,18 @@ class _VisualizeOfferPageState extends State<VisualizeOfferPage> {
                           .weCouldNotConnectToTheServer);
 
                   if (_response.statusCode == 200) {
-                    await json.decode(utf8.decode(_response.bodyBytes));
+                    final Map<String, dynamic> _jsonRequest =
+                        await json.decode(utf8.decode(_response.bodyBytes));
+                    if (_jsonRequest["data"]?["purchase"]?["success"] == true) {
+                      PublicMethods.snackMessage(
+                          message: Translates.of(context)!.successfulPurchase,
+                          context: context);
+                      Navigator.of(_).pop();
+                      Navigator.of(context).pop(widget.currentBalance -
+                          double.parse("${widget.offer["price"]}"));
+                    } else {
+                      throw _jsonRequest["data"]?["purchase"]?["errorMessage"];
+                    }
                   } else {
                     throw await json.decode(utf8.decode(_response.bodyBytes));
                   }

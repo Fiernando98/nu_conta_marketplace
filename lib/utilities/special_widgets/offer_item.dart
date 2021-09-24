@@ -27,7 +27,14 @@ class OfferItem extends StatelessWidget {
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [Text(title), Text("\$$price")])))
+                      children: [
+                        Text(title, style: const TextStyle(fontSize: 16)),
+                        const SizedBox(height: 2),
+                        Text("\$$price", style: const TextStyle(fontSize: 14))
+                      ]))),
+          const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: Icon(Icons.arrow_forward_ios, color: Colors.grey))
         ]));
   }
 }

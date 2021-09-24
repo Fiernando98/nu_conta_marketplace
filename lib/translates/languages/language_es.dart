@@ -41,4 +41,10 @@ class LanguageEs extends Translates {
 
   @override
   String get makingPurchase => "Realizando compra";
+
+  @override
+  String get insufficientBalance => "Saldo insuficiente";
+
+  @override
+  String get successfulPurchase => "Compra exitosa";
 }
