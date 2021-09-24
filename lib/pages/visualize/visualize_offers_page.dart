@@ -118,8 +118,24 @@ class _VisualizeOffersPageState extends State<VisualizeOffersPage> {
     setState(() => _someError = false);
     try {
       final Map<String, dynamic> _itemJSON = {
-        "query":
-            " { viewer { id name balance offers { id price product { id name description image } } } }"
+        "query": """ {
+             viewer {
+              id
+              name
+              balance
+              offers {
+               id
+               price
+               product {
+                id
+                name
+                description
+                image
+               }
+              }
+             }
+            }
+            """
       };
       http.Response _response = await http.post(Uri.parse(ApiUris.query),
           body: json.encode(_itemJSON),
