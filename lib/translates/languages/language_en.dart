@@ -29,4 +29,7 @@ class LanguageEn extends Translates {
 
   @override
   String get noOffersAvailable => "No offers available";
+
+  @override
+  String get checkThisOffer => "Check this offer!";
 }

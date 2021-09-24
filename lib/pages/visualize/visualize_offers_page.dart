@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:nu_conta_marketplace/main.dart';
 import 'package:nu_conta_marketplace/pages/something_wrong_page.dart';
+import 'package:nu_conta_marketplace/pages/visualize/visualize_offer_page.dart';
 import 'package:nu_conta_marketplace/translates/translates.dart';
 import 'package:nu_conta_marketplace/utilities/api_uris.dart';
 import 'package:nu_conta_marketplace/utilities/methods/public.dart';
+import 'package:nu_conta_marketplace/utilities/special_widgets/offer_item.dart';
 import 'package:nu_conta_marketplace/utilities/special_widgets/search_appbar.dart';
 
 class VisualizeOffersPage extends StatefulWidget {
@@ -31,6 +33,8 @@ class _VisualizeOffersPageState extends State<VisualizeOffersPage> {
     return SearchAppBar(
         title: Text(Translates.of(context)!.offers),
         searchText: Translates.of(context)!.search,
+        hintTextStyle: const TextStyle(color: Colors.white),
+        searchTextStyle: const TextStyle(color: Colors.white),
         onTextChange: (newText) {
           setState(() => _searchQuery = newText);
         });
@@ -52,7 +56,7 @@ class _VisualizeOffersPageState extends State<VisualizeOffersPage> {
         (_jsonRequest!["data"]!["viewer"]!["offers"]! as List<dynamic>)
             .toList();
 
-    if (_searchQuery.isEmpty) {
+    if (_listFilter.isEmpty) {
       return Center(child: Text(Translates.of(context)!.noOffersAvailable));
     }
 
@@ -61,15 +65,48 @@ class _VisualizeOffersPageState extends State<VisualizeOffersPage> {
         ].any((element) => element.contains(_searchQuery.toLowerCase())));
 
     return ListView.separated(
-        itemBuilder: (_, index) =>
-            ListTile(title: Text(_listFilter[index]["product"]["name"])),
+        itemBuilder: (_, index) => OfferItem(
+            title: _listFilter[index]["product"]["name"],
+            price: double.parse("${_listFilter[index]["price"]}"),
+            imagePath: _listFilter[index]["product"]["image"],
+            onTap: () => Navigator.of(context)
+                .push(MaterialPageRoute(
+                    builder: (_) =>
+                        VisualizeOfferPage(idOffer: _listFilter[index]["id"])))
+                .whenComplete(_loadData)),
         separatorBuilder: (_, index) => const Divider(height: 0, thickness: 1),
         itemCount: _listFilter.length);
   }
 
+  Widget? _bottomUserInformation() {
+    if (_jsonRequest != null) {
+      return Card(
+          elevation: 10,
+          margin: const EdgeInsets.all(0),
+          child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 5),
+              child: Row(children: [
+                Expanded(
+                    child: Text("${_jsonRequest!["data"]!["viewer"]!["name"]}",
+                        style: const TextStyle(fontWeight: FontWeight.bold))),
+                Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.green[800],
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Text(
+                        "\$${_jsonRequest!["data"]!["viewer"]!["balance"]}",
+                        style: const TextStyle(color: Colors.white)))
+              ])));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: _appBar(), body: _bodyPage());
+    return Scaffold(
+        appBar: _appBar(),
+        body: _bodyPage(),
+        bottomNavigationBar: _bottomUserInformation());
   }
 
   Future<void> _loadData() async {
@@ -99,7 +136,9 @@ class _VisualizeOffersPageState extends State<VisualizeOffersPage> {
     } catch (error) {
       PublicMethods.snackMessage(
           message: error.toString(), context: context, isError: true);
-      setState(() => _someError = true);
+      _jsonRequest = null;
+      _someError = true;
+      setState(() {});
     }
   }
 }

@@ -24,4 +24,6 @@ abstract class Translates {
   String get offers;
 
   String get noOffersAvailable;
+
+  String get checkThisOffer;
 }
