@@ -72,7 +72,7 @@ class _VisualizeOffersPageState extends State<VisualizeOffersPage> {
             onTap: () => Navigator.of(context)
                 .push(MaterialPageRoute(
                     builder: (_) =>
-                        VisualizeOfferPage(idOffer: _listFilter[index]["id"])))
+                        VisualizeOfferPage(offer: _listFilter[index])))
                 .whenComplete(_loadData)),
         separatorBuilder: (_, index) => const Divider(height: 0, thickness: 1),
         itemCount: _listFilter.length);

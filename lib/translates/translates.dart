@@ -26,4 +26,10 @@ abstract class Translates {
   String get noOffersAvailable;
 
   String get checkThisOffer;
+
+  String get price;
+
+  String get buy;
+
+  String get makingPurchase;
 }

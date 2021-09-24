@@ -32,4 +32,13 @@ class LanguageEn extends Translates {
 
   @override
   String get checkThisOffer => "Check this offer!";
+
+  @override
+  String get price => "Price";
+
+  @override
+  String get buy => "Buy";
+
+  @override
+  String get makingPurchase => "Making purchase";
 }
