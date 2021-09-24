@@ -4,7 +4,8 @@ NuConta Marketplace Application
 
 ## Requirements
 
-latest version of flutter on dev channel (My flutter doctor:(Channel dev, 2.6.0-5.1.pre))
+latest version of flutter on dev channel.
+My flutter doctor: (Channel dev, 2.6.0-5.1.pre).
 
 ## How to run the project
 
